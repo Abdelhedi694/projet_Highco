@@ -1,0 +1,95 @@
+
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Graphiques statistique High connexion{% endblock %}
+
+{% block body %}
+
+    <div class="container" style="width: 550px;height: 350px;display: flex">
+        <canvas id="bartChart" width="200" height="200"></canvas>
+        <canvas id="pieChart" width="200" height="200"></canvas>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.1/chart.min.js" integrity="sha512-tOcHADT+YGCQqH7YO99uJdko6L8Qk5oudLN6sCeI4BQnpENq6riR6x9Im+SGzhXpgooKBRkPsget4EOoH5jNCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>            <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+    // Graphique BarChart
+        var donneesBarChart = JSON.parse('{{ donneesBartChart | json_encode | raw }}');
+        var don = []
+        var nbrDeFoisDonne = []
+        for (let i=0; i<donneesBarChart.length;i++){
+            don.push(donneesBarChart[i].montant + '€')
+            nbrDeFoisDonne.push(donneesBarChart[i].nbrDeFoisDonne)
+        }
+
+        var backgroundColorArray = []
+        var randomColor = null
+
+
+        for (var i=0; i<donneesBarChart.length; i++){
+            var randomColor = '#'+ Math.floor(Math.random() * 19777215).toString(16);
+            backgroundColorArray.push(randomColor)
+        }
+
+
+        var bartChart = document.getElementById('bartChart');
+
+        var monBarChartgraph = new Chart(bartChart, {
+            type:'bar',
+            data:{
+                labels:don,
+                datasets:[{
+                    label:"Bar chart nombre de personnes ayant donné ces dons",
+                    data:nbrDeFoisDonne,
+                    backgroundColor:backgroundColorArray
+                }]
+            }
+        })
+
+
+
+        //Graphique PieChart
+        var donneesPieChart10results = JSON.parse('{{ donneesPieChart10results | json_encode | raw }}')
+        var donneesPieChartRestResults = JSON.parse('{{ donneesPieChartRestResults | json_encode | raw }}')
+
+        var tableau10departements = []
+        var tableauNbrDon10departements = []
+        for (let i=0; i<donneesPieChart10results.length; i++){
+            tableau10departements.push(donneesPieChart10results[i]["code_postal"])
+            tableauNbrDon10departements.push(donneesPieChart10results[i][1])
+        }
+
+        tableau10departements.push("Nombre des départements restants")
+        tableauNbrDon10departements.push(donneesPieChartRestResults[0]["nbrCode_postal_restant"])
+        var backgroundColorArray = []
+        var randomColor = null
+
+
+        for (var i=0; i<10; i++){
+            var randomColor = '#'+ Math.floor(Math.random() * 19777215).toString(16);
+            backgroundColorArray.push(randomColor)
+        }
+        var pieChart = document.getElementById('pieChart');
+
+        var monPieChartgraph = new Chart(pieChart, {
+            type:'pie',
+            data:{
+                labels:tableau10departements,
+                datasets:[{
+                    label: "10 départements ayant donné le plus",
+                    data:tableauNbrDon10departements,
+                    backgroundColor:backgroundColorArray
+
+                }]
+            }
+        })
+    });
+
+
+
+</script>
+{% endblock %}
+
